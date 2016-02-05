@@ -1,20 +1,29 @@
 require 'pry'
-# require 'colorize'
 require './colors'
 
 class Game
-  LINE = "-" * 29
+  TLINE = "-" * 29 + "\n"
+  BLINE = "\n" + "-" * 29 + "\n\n"
+  TSTAR = "*".cyan * 29 + "\n"
+  BSTAR = "\n" + "*".cyan * 29
+  LINE3 = "\n\n\n"
+
   def initialize
+    # Player One
     @p1_name = ""
     @p1_health = 5
     @p1_score = 0
 
+    # Player Two
     @p2_name = ""
     @p2_health = 5
     @p2_score = 0
 
     @winner = ""
     @turn = 1
+
+    @answer = 0
+    @correct = 0
   end
 
   # ------------------------------------------
@@ -22,21 +31,14 @@ class Game
   # ------------------------------------------
 
   def intro
-    puts "-" * 28
-    puts "*".cyan * 8 + " MATH MANIA ".red.blink.bold + "*".cyan * 8
-    puts "-" * 28 + "\n\n"
-    print "Player 1 Name:".underline + " "
-    @p1_name = gets.chomp
+    puts TLINE + "*".cyan * 8 + " MATH MANIA! ".red.blink.bold + "*".cyan * 8 + BLINE
+    print "Player 1 Name:".underline.bold + " "
+    @p1_name = gets.chomp.capitalize
     puts "\n\n"
-    print "Player 2 Name:".underline + " "
-    @p2_name = gets.chomp 
-    puts "\n\n"
-    puts "-" * 29
-    puts "*".cyan * 29
-    puts "*".cyan * 8 + " LET'S BEGIN ".red.bold + "*".cyan * 8
-    puts "*".cyan * 29
-    puts "-" * 29
-    puts "\n\n"
+    print "Player 2 Name:".underline.bold + " "
+    @p2_name = gets.chomp.capitalize
+    puts "\n"
+    puts TLINE + TSTAR + "*".cyan * 11 + " START ".red.bold + "*".cyan * 11 + BSTAR + BLINE
     return generate_question
   end
 
@@ -46,16 +48,18 @@ class Game
   # ------------------------------------------
 
   def generate_question
+
     # Generates random numbers
     @num1 = rand(1..20)
     @num2 = rand(1..20)
+
+    # Determines which players is asked a questoin
     if @turn == 1
-      puts "#{@p1_name}'s Turn!".bold.underline.cyan
-      puts "\n\n"
+      puts "#{@p1_name}'s Turn!".underline.bold + "\n\n"
     elsif @turn == 2
-      puts "#{@p2_name}'s Turn!".bold.underline.cyan
-      puts "\n\n"
+      puts "#{@p2_name}'s Turn!".underline.bold + "\n\n"
     end
+
     # Determines which operator to use
     operator = rand(1..3)
     case operator
@@ -74,62 +78,44 @@ class Game
   # The Questions
   # ------------------------------------------
 
-
   def addition
     print "What is #{@num1} + #{@num2}? "
-    answer = gets.chomp.to_i
-    puts LINE
-    correct =  @num1 + @num2
-    if answer == correct
-
-      puts "CORRECT!".bold
-      return correct_answer
-    else
-      puts "WRONG!".red.bold
-      return wrong_answer
-    end
+    @answer = gets.chomp.to_i
+    puts TLINE
+    @correct =  (@num1 + @num2)
+    return verifiy_answer
   end
 
   def subtraction
     print "What is #{@num1} - #{@num2}? "
-    answer = gets.chomp.to_i
-    puts LINE
-    correct =  @num1 - @num2
-    if answer == correct
-      puts "CORRECT!".bold
-      return correct_answer
-    else
-      puts "WRONG!".red.bold
-      return wrong_answer
-    end
+    @answer = gets.chomp.to_i
+    puts TLINE
+    @correct =  (@num1 - @num2)
+    return verifiy_answer
   end
 
   def multiplication
     print "What is #{@num1} * #{@num2}? "
-    answer = gets.chomp.to_i
-    puts LINE
-    correct =  @num1 * @num2
-    if answer == correct
-      puts "CORRECT!".bold
-      return correct_answer
-    else
-      puts "WRONG!".red.bold
-      return wrong_answer
-    end
+    @answer = gets.chomp.to_i
+    puts TLINE
+    @correct =  (@num1 * @num2)
+    return verifiy_answer
   end
 
   def division
     print "What is #{@num1} ÷ #{@num2}? "
-    answer = gets.chomp.to_i
-    puts LINE
-    correct =  @num1 / @num2
-    if answer == correct
-      puts "CORRECT!".bold
-      return correct_answer
-    else
-      puts "WRONG!".red.bold
-      return wrong_answer
-    end
+    @answer = gets.chomp.to_i
+    puts TLINE
+    @correct =  (@num1 / @num2)
+    return verifiy_answer
+  end
+
+  # ------------------------------------------
+  # Does what it says... It verifies.
+  # ------------------------------------------
+
+  def verifiy_answer
+    @answer == @correct ? correct_answer : wrong_answer
   end
 
   # ------------------------------------------
@@ -142,22 +128,22 @@ class Game
     when 1
       @p1_score += 100
       @turn = 2
-      puts "\n\n"
-      puts LINE
-      puts "#{@p1_name}  +100 points"
-      puts LINE
+      puts TSTAR + "CORRECT!".bold + BSTAR
+      puts TLINE + "#{@p1_name}  +100 points" 
       puts "\n\n"
       return generate_question
     when 2
       @p2_score += 100
       @turn = 1
-      puts "\n\n"
-      puts LINE
-      puts "#{@p1_name} +100 points"
-      puts LINE
+      puts TSTAR + "CORRECT!".bold + BSTAR
+      puts TLINE + "#{@p1_name} +100 points" 
       puts "\n\n"
       return generate_question
     end
+  end
+
+  def hearts(int)
+    "♥" * int
   end
 
   def wrong_answer
@@ -169,10 +155,9 @@ class Game
         return game_over
       else
         @turn = 2
-        puts "\n\n"
-        puts LINE
-        puts "#{@p1_name} lost a life: #{@p1_health}"
-        puts LINE
+        puts TSTAR + "WRONG!".red.bold + BSTAR
+        puts "The answer was #{@correct}"
+        puts TLINE + "#{@p1_name} lost a life: #{hearts(@p1_health)} left." + BLINE
         puts "\n\n"
         return generate_question
       end
@@ -183,10 +168,9 @@ class Game
         return game_over
       else
         @turn = 1
-        puts "\n\n"
-        puts LINE
-        puts "#{@p2_name} lost a life: #{@p2_health}"
-        puts LINE
+        puts TSTAR + "WRONG!".red.bold + BSTAR
+        puts "The answer was #{@correct}"
+        puts TLINE + "#{@p2_name} lost a life: #{hearts(@p2_health)} left." + BLINE
         puts "\n\n"
         return generate_question
       end
@@ -205,16 +189,12 @@ class Game
     puts "*".cyan * 9 + " GAME OVER ".red.bold + "*".cyan * 9
     puts "*".cyan * 29
     puts "-" * 29
-    puts "\n\n"
-    puts " " * 6 + "#{@winner} WINS!!!".underline.bold.blink
-    puts "\n\n"
-    puts "FINAL SCORE".bold.red
+    puts LINE3 + " " * 8 + "#{@winner} WINS!!!".underline.bold.blink + LINE3
+    puts TLINE + "FINAL SCORE".bold.red
     puts "-" * 29
     puts "#{@p1_name}".ljust(10) + "#{@p1_score} pts".rjust(19)
-    puts "#{@p2_name}".ljust(10) + "#{@p2_score} pts".rjust(19)
-    puts "-" * 29
-    puts "\n\n\n"
-    print " " * 2 + "[Press Enter to Restart]"
+    puts "#{@p2_name}".ljust(10) + "#{@p2_score} pts".rjust(19) + BLINE
+    print LINE3 + " " * 2 + "[Press Enter to Restart]".blink
     puts "\n\n\n\n\n\n"
       enter = gets 
       if enter == "\n"
@@ -223,7 +203,7 @@ class Game
         return
       end
   end
-  
+
 end
 
 # ------------------------------------------
